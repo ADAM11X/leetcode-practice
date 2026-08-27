@@ -1,3 +1,6 @@
+/* Write your T-SQL query statement below */
+
+
 WITH FULL_TABLE AS (
 SELECT 
 s.sale_id ,
@@ -7,21 +10,17 @@ p.product_id  ,
 s.sale_date  ,
 s.quantity ,
 s.price ,
-s.price * s.quantity as revenue 
-FROM sales s
-LEFT JOIN products P
-ON s.product_id = p.product_id 
-),
-SEASONS AS (
-    SELECT 
-    *,
-    CASE 
+s.price * s.quantity as revenue ,
+CASE 
         WHEN MONTH(sale_date) IN (3 ,4, 5)      THEN 'Spring'
         WHEN MONTH(sale_date) IN (6 ,7, 8)      THEN 'Summer'
         WHEN MONTH(sale_date) IN (9 ,10, 11)    THEN 'Fall'
         WHEN MONTH(sale_date) IN (12 , 1 , 2)   THEN 'Winter'
-    END AS season
-    FROM  FULL_TABLE
+END AS season
+
+FROM sales s
+LEFT JOIN products P
+ON s.product_id = p.product_id 
 ),
 top_one as (
 
@@ -30,8 +29,8 @@ top_one as (
     category ,
     sum(quantity) AS  total_quantity ,
     sum(revenue) AS total_revenue ,
-    ROW_NUMBER() OVER(PARTITION BY season ORDER BY  sum(revenue)  DESC) AS RN
-    FROM SEASONS  
+    ROW_NUMBER() OVER(PARTITION BY season ORDER BY  sum(quantity) DESC,sum(revenue)  DESC) AS RN
+    FROM FULL_TABLE  
     GROUP BY season , category 
 )
 
